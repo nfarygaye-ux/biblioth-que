@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Collection partagée</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .livre { border: 1px solid #ccc; border-radius: 8px; padding: 10px; margin: 10px; width: 200px; display: inline-block; vertical-align: top; }
+    .livre img { width: 100%; border-radius: 5px; }
+    input, textarea { display:block; margin:5px 0; width:200px; padding:5px; }
+    button { margin-top:10px; padding:8px 15px; background:#28a745; color:white; border:none; border-radius:5px; cursor:pointer; }
+    button:hover { background:#1e7e34; }
+  </style>
+</head>
+<body>
+  <h1>📚 Collection partagée</h1>
+
+  <h2>Ajouter un livre</h2>
+  <input id="titre" placeholder="Titre">
+  <input id="auteur" placeholder="Auteur">
+  <input id="annee" placeholder="Année">
+  <textarea id="resume" placeholder="Résumé"></textarea>
+  <input id="couverture" placeholder="Lien image">
+  <button onclick="ajouterLivre()">Ajouter</button>
+
+  <h2>Liste des livres</h2>
+  <div id="collection"></div>
+
+  <script>
+    const API_URL = "https://accounts.google.com/o/oauth2/auth/oauthchooseaccount?client_id=1042342380245-q2jdnbprec64j9duimje5qn8stkklkl9.apps.googleusercontent.com&redirect_uri=https%3A%2F%2Fscript.google.com%2Foauthcallback&state=ACjPJvESV5r7vmnJbLhG6VlAm8_NpDDArpiPd0cZ7Ig-2JX7_V1BnxkK1dCEzrd0NrJzq5XAB_FYyhxwUw9UgZ6bsIC6Jt05_rOWxxHA7K699X92Wg4ryQ_Wr1MeIrvh8Qn7_TdTZoQrD1-mOrgT8ZDbTGMh7l_TAshT1QwSZFRADbvh&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fspreadsheets&response_type=none%20gsession&access_type=offline&approval_prompt=force&enable_granular_consent=false&hl=en-US&login_hint=nfary.gaye%40etu.ussein.edu.sn&service=lso&o2v=1&flowName=GeneralOAuthFlow"; // <-- colle l’URL ici
+
+    async function chargerLivres() {
+      const r = await fetch(API_URL);
+      const livres = await r.json();
+      const div = document.getElementById("collection");
+      div.innerHTML = "";
+      livres.forEach(livre => {
+        div.innerHTML += `
+          <div class="livre">
+            <img src="${livre.couverture || 'https://via.placeholder.com/150'}">
+            <h3>${livre.titre}</h3>
+            <p><b>Auteur :</b> ${livre.auteur}</p>
+            <p><b>Année :</b> ${livre.annee}</p>
+            <p>${livre.resume}</p>
+          </div>
+        `;
+      });
+    }
+
+    async function ajouterLivre() {
+      const data = {
+        titre: document.getElementById("titre").value,
+        auteur: document.getElementById("auteur").value,
+        annee: document.getElementById("annee").value,
+        resume: document.getElementById("resume").value,
+        couverture: document.getElementById("couverture").value
+      };
+      await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify(data)
+      });
+      chargerLivres();
+    }
+
+    chargerLivres();
+  </script>
+</body>
+</html>
